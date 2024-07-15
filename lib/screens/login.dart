@@ -117,8 +117,7 @@ class _LoginScreenState extends State<Login> {
                             height: 36,
                             child: TextField(
                               decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.only(top: 20, bottom: 20),
+                                contentPadding: EdgeInsets.all(5),
                                 border: OutlineInputBorder(),
                                 fillColor: Color.fromARGB(255, 236, 236, 236),
                                 filled: true,

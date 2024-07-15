@@ -16,6 +16,35 @@ class LeaveWorkScreen extends StatefulWidget {
 class _LeaveWorkScreenState extends State<LeaveWorkScreen> {
   List<DateTime> _selectedDates = [];
   File? _image;
+  bool isChecked = true;
+  late TextEditingController _textFieldController;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isChecked == true) {
+      _textFieldController = TextEditingController(text: "ลางานทั้งวัน");
+    } else {
+      _textFieldController = TextEditingController();
+    }
+  }
+
+  @override
+  void dispose() {
+    _textFieldController.dispose();
+    super.dispose();
+  }
+
+  void _handleCheckboxChange(bool? value) {
+    setState(() {
+      isChecked = value!;
+      if (isChecked == true) {
+        _textFieldController.text = "ลางานทั้งวัน";
+      } else {
+        _textFieldController.text = "";
+      }
+    });
+  }
 
   Future<void> _pickImage() async {
     final pickFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -105,25 +134,23 @@ class _LeaveWorkScreenState extends State<LeaveWorkScreen> {
                     flex: 1,
                     child: Align(
                       alignment: Alignment.center,
-                      child: 
-                      Text('ประเภทการลา: '),
+                      child: Text('ประเภทการลา: '),
                     ),
                   ),
                   SizedBox(width: 16.0),
                   Expanded(
                     flex: 2,
                     child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: 
-                      SizedBox(
-                        height: 40,
-                        child: TextField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
-                      ),)
-                      
-                    ),
+                        alignment: Alignment.centerLeft,
+                        child: SizedBox(
+                          height: 36,
+                          child: TextField(
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5),
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        )),
                   ),
                 ],
               ),
@@ -134,7 +161,7 @@ class _LeaveWorkScreenState extends State<LeaveWorkScreen> {
                     flex: 1,
                     child: Align(
                       alignment: Alignment.center,
-                      child: Text('ระยะเวลาที่ลา: '),
+                      child: Text('วันที่ลา : '),
                     ),
                   ),
                   const SizedBox(width: 16.0),
@@ -142,25 +169,71 @@ class _LeaveWorkScreenState extends State<LeaveWorkScreen> {
                     flex: 2,
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: TextFormField(
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.calendar_today),
-                            onPressed: () async {
-                              await _selectDates(context);
-                            },
+                      child: SizedBox(
+                        height: 36,
+                        child: TextFormField(
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.all(5),
+                            border: const OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.calendar_today),
+                              onPressed: () async {
+                                await _selectDates(context);
+                              },
+                            ),
+                            hintText: _selectedDates.isEmpty
+                                ? 'Select dates'
+                                : _selectedDates
+                                    .map(
+                                        (date) => date.toString().split(' ')[0])
+                                    .join(', '),
                           ),
-                          hintText: _selectedDates.isEmpty
-                              ? 'Select dates'
-                              : _selectedDates
-                                  .map((date) => date.toString().split(' ')[0])
-                                  .join(', '),
                         ),
                       ),
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text('ระยะเวลาที่ลา: '),
+                    ),
+                  ),
+                  SizedBox(width: 16.0),
+                  Expanded(
+                    flex: 2,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start, // จัดชิดซ้าย
+                      children: [
+                        Container(
+                          alignment:
+                              Alignment.centerLeft, // จัดชิดซ้ายภายใน Container
+                          child: Checkbox(
+                              value: isChecked,
+                              onChanged: _handleCheckboxChange),
+                        ), // เพิ่มระยะห่างระหว่าง Checkbox กับ TextField
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          height: 36,
+                          alignment:
+                              Alignment.centerLeft, // จัดชิดซ้ายภายใน Container
+                          child: TextField(
+                            controller: _textFieldController,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(5),
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
               const SizedBox(height: 16.0),

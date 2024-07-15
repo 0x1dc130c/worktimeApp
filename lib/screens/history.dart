@@ -10,42 +10,143 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   bool isEditing = false;
+  bool isAtBottom = false;
+  final ScrollController _scrollController = ScrollController();
   int editingIndex = -1;
+  List<String> morth = <String>[
+    'มกราคม',
+    'กุมภาพันธ์',
+    'มีนาคม',
+    'เมษายน',
+    'พฤษภาคม',
+    'มิถุนายน',
+    'กรกฎาคม',
+    'สิงหาคม',
+    'กันยายน',
+    'ตุลาคม',
+    'พฤศจิกายน',
+    'ธันวาคม'
+  ];
+
+  String? selectedMonth;
+  String displayMonth = 'มกราคม';
+
+  @override
+  void initState() {
+    super.initState();
+    selectedMonth = morth.first;
+    _scrollController.addListener(() {
+      if (_scrollController.position.atEdge) {
+        bool isBottom = _scrollController.position.pixels == 0;
+        if (isBottom != isAtBottom) {
+          setState(() {
+            isAtBottom = true;
+          });
+        } else {
+          setState(() {
+            isAtBottom = false;
+          });
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text('History'),
         ),
-        body: Container(
-          padding: const EdgeInsets.all(10.0),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 233, 102, 102),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
+        body: Column(
+          children: [
+            Row(
               children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 660,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 233, 102, 102),
-                  ),
-                  child: ListView.builder(
-                    itemCount: 10,
-                    itemBuilder: (context, index) {
-                      return isEditing && editingIndex == index
-                          ? _buildEditForm(index)
-                          : _buildHistoryItem(index);
-                    },
-                  )
+                Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 10, top: 5),
+                      child: Text(
+                        'ประวัติการลา',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    )),
+
+                SizedBox(width: 10),
+                // เพิ่ม spacing ระหว่าง Text กับ Dropdown
+                Expanded(
+                  child: Padding(
+                      padding: EdgeInsets.only(top: 5, right: 10),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: DropdownButton<String>(
+                          value: selectedMonth,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedMonth = newValue!;
+                              displayMonth = '$selectedMonth';
+                            });
+                          },
+                          items: morth
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      )),
                 ),
               ],
             ),
-          ),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(10.0),
+                width: MediaQuery.of(context).size.width,
+                height: 660,
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 233, 102, 102),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end, // ดันกล่องขึ้นมา
+                    children: [
+                      Expanded(
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 233, 102, 102),
+                          ),
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            reverse: true,
+                            itemCount: 10 +
+                                (isAtBottom
+                                    ? 1
+                                    : 0), // เพิ่มช่องให้กับ SizedBox ถ้าอยู่ข้างล่าง
+                            itemBuilder: (context, index) {
+                              if (isAtBottom && index == 0) {
+                                return SizedBox(
+                                    height: 100); // เพิ่ม SizedBox ที่นี่
+                              } else {
+                                int adjustedIndex =
+                                    isAtBottom ? index - 1 : index;
+                                return isEditing &&
+                                        editingIndex == adjustedIndex
+                                    ? _buildEditForm(adjustedIndex)
+                                    : _buildHistoryItem(adjustedIndex);
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ));
   }
 
@@ -110,7 +211,7 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-   Widget _buildEditForm(int index) {
+  Widget _buildEditForm(int index) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -165,5 +266,4 @@ class _HistoryPageState extends State<HistoryPage> {
       ),
     );
   }
-  
 }
