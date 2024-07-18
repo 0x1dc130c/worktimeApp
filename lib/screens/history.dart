@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'editHistory.dart';
+import 'package:provider/provider.dart';
+import 'color_provider.dart'; 
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -53,49 +56,55 @@ class _HistoryPageState extends State<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorProvider = Provider.of<ColorProvider>(context);
+
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('History'),
-        ),
-        body: Column(
+      appBar: AppBar(
+        title: const Text('History'),
+        backgroundColor: colorProvider.color,
+      ),
+      body: Visibility(
+        visible: !isEditing,
+        child: Column(
           children: [
             Row(
               children: [
                 Expanded(
-                    flex: 1,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 10, top: 5),
-                      child: Text(
-                        'ประวัติการลา',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    )),
-
+                  flex: 1,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 10, top: 5),
+                    child: Text(
+                      'ประวัติการลา',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
                 SizedBox(width: 10),
                 // เพิ่ม spacing ระหว่าง Text กับ Dropdown
                 Expanded(
                   child: Padding(
-                      padding: EdgeInsets.only(top: 5, right: 10),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: DropdownButton<String>(
-                          value: selectedMonth,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedMonth = newValue!;
-                              displayMonth = '$selectedMonth';
-                            });
-                          },
-                          items: morth
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                      )),
+                    padding: EdgeInsets.only(top: 5, right: 10),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: DropdownButton<String>(
+                        value: selectedMonth,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedMonth = newValue!;
+                            displayMonth = '$selectedMonth';
+                          });
+                        },
+                        items:
+                            morth.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -147,7 +156,24 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
             ),
           ],
-        ));
+        ),
+        replacement: EditHistory(
+          onFormSubmit: (formData) {
+            setState(() {
+              // Handle form submission
+              isEditing = false;
+              editingIndex = -1;
+            });
+          },
+          onCancel: () {
+            setState(() {
+              isEditing = false;
+              editingIndex = -1;
+            });
+          },
+        ),
+      ),
+    );
   }
 
   Widget _buildHistoryItem(int index) {
@@ -161,10 +187,10 @@ class _HistoryPageState extends State<HistoryPage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
+            const Expanded(
               flex: 4,
               child: Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: EdgeInsets.all(10.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -200,7 +226,6 @@ class _HistoryPageState extends State<HistoryPage> {
                       isEditing = true;
                       editingIndex = index;
                     });
-                    // Add your onPressed code here!
                   },
                 ),
               ),
@@ -212,58 +237,21 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Widget _buildEditForm(int index) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'ชื่อเรื่อง',
-              ),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'รายละเอียด',
-              ),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'วันที่',
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      isEditing = false;
-                      editingIndex = -1;
-                    });
-                  },
-                  child: Text('ยกเลิก'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      isEditing = false;
-                      editingIndex = -1;
-                    });
-                    // Add your save functionality here
-                  },
-                  child: Text('บันทึก'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return EditHistory(
+      onFormSubmit: (formData) {
+            setState(() {
+              // Handle form submission
+              isEditing = false;
+              editingIndex = -1;
+            });
+          },
+          onCancel: () {
+            setState(() {
+              isEditing = false;
+              editingIndex = -1;
+            });
+          },
+          
     );
   }
 }

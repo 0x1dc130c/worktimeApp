@@ -4,7 +4,7 @@ import 'package:worktime/screens/splashScreen.dart';
 import 'package:worktime/screens/color_provider.dart';
 import 'package:worktime/screens/login.dart';
 import 'package:worktime/screens/bottonbar.dart';
-
+import 'package:worktime/screens/editHistory.dart';
 void main() {
   runApp(const MainApp());
 }
@@ -24,6 +24,7 @@ class MainApp extends StatelessWidget {
         routes: {
           '/login': (context) => const Login(),
           '/bottombar': (context) => const BottonBar(),
+          // '/editHistory': (context) => EditHistory(),
         },
       ),
     );

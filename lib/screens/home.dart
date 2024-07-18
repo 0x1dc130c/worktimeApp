@@ -4,7 +4,7 @@ import 'package:aura_box/aura_box.dart';
 import 'package:pulsator/pulsator.dart';
 import 'package:provider/provider.dart';
 import 'color_provider.dart';
-import 'bottonbar.dart';
+import 'bottonBar.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
