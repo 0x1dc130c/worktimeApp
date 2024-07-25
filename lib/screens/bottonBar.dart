@@ -8,6 +8,7 @@ import 'history.dart';
 import 'serveice.dart';
 import 'home.dart';
 import 'leaveWork.dart';
+import 'historyAdmin.dart';
 
 class BottonBar extends StatefulWidget {
   const BottonBar({super.key});
@@ -22,7 +23,7 @@ class _BottonBarState extends State<BottonBar> {
 
   final _pageOption = [
     const LeaveWorkScreen(),
-    const HistoryPage(),
+    const HistoryAdmin(),
     const Home(),  // Index 2 คือหน้า Home
     const CalculatePage(),
     const ServeicePage(),
