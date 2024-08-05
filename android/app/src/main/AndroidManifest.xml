@@ -5,8 +5,9 @@
         android:label="worktime"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true">
-        
+        android:requestLegacyExternalStorage="true"
+        android:enableOnBackInvokedCallback="true"> <!-- ต้องอยู่ในแท็ก <application> -->
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,11 +1,21 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:worktime/firebase_options.dart';
 import 'package:worktime/screens/splashScreen.dart';
 import 'package:worktime/screens/color_provider.dart';
 import 'package:worktime/screens/login.dart';
 import 'package:worktime/screens/bottonbar.dart';
 import 'package:worktime/screens/editHistory.dart';
-void main() {
+
+
+Future <void> main()  async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const MainApp());
 }
 

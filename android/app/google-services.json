@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1093433096575",
+    "project_id": "worktimer2c",
+    "storage_bucket": "worktimer2c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1093433096575:android:e7b97a9b7267eb2233824a",
+        "android_client_info": {
+          "package_name": "com.example.worktime"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeCPAOeQiuVxUmBZcEUnJIKw-dsOWmorY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
