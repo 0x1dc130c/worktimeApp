@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'color_provider.dart';
 
 class CalculatePage extends StatelessWidget {
   const CalculatePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colorProvider = Provider.of<ColorProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('จำนวนวันลาที่เหลือ'),
-      ),
+        centerTitle: true,
+        title: Text('จำนวนวันลาที่เหลือ',
+          style: TextStyle(fontSize: 24, color: colorProvider.textcolor)),
+        backgroundColor: colorProvider.color,),
+      
       body: Container(
         padding: EdgeInsets.all(50),
-        color: Color.fromARGB(255, 223, 136, 136),
+        color: Color.fromARGB(255, 227, 227, 227),
         width: double.infinity,
         child: Column(
           children: [
             Container(
               padding: EdgeInsets.only(bottom: 10, top: 10, left: 20, right: 20),
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 24, 59, 197),
+                color: Color.fromARGB(255, 63, 89, 168),
                 borderRadius: BorderRadius.circular(30),
               ),
               child:  Text('ลาป่วย', style: TextStyle(fontSize: 16, color: Colors.white),),
@@ -45,7 +51,7 @@ class CalculatePage extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 10, top: 10, left: 20, right: 20),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: Color.fromARGB(255, 24, 59, 197),
+                color: Color.fromARGB(255, 63, 89, 168),
               ),
               
               child:
@@ -72,7 +78,7 @@ class CalculatePage extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 10, top: 10, left: 20, right: 20),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: Color.fromARGB(255, 24, 59, 197),
+                color: Color.fromARGB(255, 63, 89, 168),
               ),
               child:
             Text('ลาพักร้อน', style: TextStyle(fontSize: 16, color : Colors.white),),),

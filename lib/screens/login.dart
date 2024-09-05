@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // เพิ่มการนำเข้า Cloud Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'register.dart';
 import 'package:worktime/screens/bottonBar.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // เพิ่มการนำเข้า shared_preferences
+import 'dart:async';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -19,12 +21,14 @@ class _LoginScreenState extends State<Login> {
   @override
   void initState() {
     super.initState();
+    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: Colors.transparent,
       systemNavigationBarIconBrightness: Brightness.light,
     ));
+    _checkLoginStatus(); // เพิ่มการตรวจสอบสถานะการเข้าสู่ระบบเมื่อเริ่มต้นแอป
   }
 
   Future<void> _login() async {
@@ -35,36 +39,54 @@ class _LoginScreenState extends State<Login> {
       _showDialog('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
       return;
     }
-    print('-------------- username: $username, password: $password');
     try {
-      bool isValid = await checkCredentials(username, password);
-      print('-------------- isValid: $isValid');
+      final _result = await checkCredentials(username, password);
+      final resultMap = _result as Map<String, dynamic>;
+      bool isValid = resultMap['isValid'];
+      String roles =
+          resultMap['roles'] ?? 'defaultRole'; // เพิ่มการตรวจสอบค่า null
+
       if (isValid) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('username', username);
+        await prefs.setString('roles', roles);
+
         _showDialog('เข้าสู่ระบบสำเร็จ', success: true);
       } else {
         _showDialog('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
       }
     } catch (e) {
-      _showDialog('เกิดข้อผิดพลาด: ${e.toString()}');
+      print('Error: $e');
+      _showDialog('Error: $e');
     }
   }
 
-  Future<bool> checkCredentials(String username, String password) async {
+  Future<Object> checkCredentials(String username, String password) async {
     try {
+      String? _roles;
       final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-      // ดึงข้อมูลผู้ใช้ที่มีชื่อผู้ใช้และรหัสผ่านตรงกัน
       final QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
           .collection('Users')
           .where('Username', isEqualTo: username)
           .where('Password', isEqualTo: password)
           .get();
 
-      print(
-          '-------------------------- snapshot.docs.length: ${snapshot.docs.length}'
-      );
-      // หากมีเอกสารที่ตรงกัน แสดงว่าข้อมูลการเข้าสู่ระบบถูกต้อง
-      return snapshot.docs.isNotEmpty;
+      bool isValid = snapshot.docs.isNotEmpty;
+      if (snapshot.docs.isNotEmpty) {
+        // Loop through the documents
+        for (var doc in snapshot.docs) {
+          // Access the data in each document
+          Map<String, dynamic> userData = doc.data();
+          // Access specific fields
+          _roles = userData['Roles'];
+          // Do something with the data
+        }
+      } else {
+        print('No matching documents found.');
+      }
+      return {'isValid': isValid, 'roles': _roles};
     } catch (e) {
       print('-------------------------- Error: $e');
       return false;
@@ -76,22 +98,60 @@ class _LoginScreenState extends State<Login> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(success ? 'สำเร็จ' : 'ข้อผิดพลาด'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: Text('ตกลง'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                if (success) {
-                  Navigator.pushReplacementNamed(context, '/bottombar');
-                }
-              },
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                success ? Icons.check_circle : Icons.error,
+                color: success ? Colors.green : Colors.red,
+              ),
+              SizedBox(width: 10),
+              Text(
+                success ? 'สำเร็จ' : 'ข้อผิดพลาด',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: success ? Colors.green : Colors.red,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            message,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black54,
             ),
-          ],
+          ),
         );
       },
-    );
+    ).then((_) {
+      // This is called after the dialog is dismissed
+      if (success) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/bottombar');
+        });
+      }
+    });
+
+    // Close the dialog after 2 seconds
+    Future.delayed(Duration(seconds: 2), () {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    });
+  }
+
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (isLoggedIn) {
+      Navigator.pushReplacementNamed(context, '/bottombar');
+    }
   }
 
   final Future<FirebaseApp> firebase = Firebase.initializeApp();

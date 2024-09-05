@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'color_provider.dart';
-import 'package:slidable_button/slidable_button.dart';
 import 'confrimHistory.dart';
+import 'package:get/get.dart';
+import 'package:worktime/repository/history_repository/historyU.dart';
+import 'editHistory.dart';
+
 class HistoryAdmin extends StatefulWidget {
   const HistoryAdmin({super.key});
 
@@ -15,23 +18,80 @@ class _HistoryAdminState extends State<HistoryAdmin> {
   bool isAtBottom = false;
   int editingIndex = -1;
   final ScrollController _scrollController = ScrollController();
-  SlidableButtonPosition _position = SlidableButtonPosition.start;
+  bool _isApproved = false; // ใช้สำหรับ Switch
+  List? _info;
+
+  @override
+  void initState() {
+    super.initState();
+    Get.lazyPut<infoHistory_User>(() => infoHistory_User());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final infoleaveworker = await infoHistory_User.instance.createLeaveWorker();
+      setState(() {
+        _info = infoleaveworker;
+      });
+    });
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.atEdge) {
+        bool isBottom = _scrollController.position.pixels == 0;
+        if (isBottom != isAtBottom) {
+          setState(() {
+            isAtBottom = !isBottom;
+          });
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorProvider = Provider.of<ColorProvider>(context);
+    var _leaveData = _info?.length;
+
+    if (_info == null) {
+      return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text('ประวัติการลา',
+              style: TextStyle(fontSize: 24, color: colorProvider.textcolor)),
+          backgroundColor: colorProvider.color,
+        ),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ประวัติการลา'),
+        centerTitle: true,
+        title: Text('ประวัติการลา',
+            style: TextStyle(fontSize: 24, color: colorProvider.textcolor)),
         backgroundColor: colorProvider.color,
       ),
       body: Visibility(
         visible: !isEditing,
+        replacement: EditHistory(
+          onFormSubmit: (formData) {
+            setState(() {
+              isEditing = false;
+              editingIndex = -1;
+            });
+          },
+          onCancel: () {
+            setState(() {
+              isEditing = false;
+              editingIndex = -1;
+            });
+          },
+        ),
         child: Column(
           children: [
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   flex: 1,
                   child: Padding(
                     padding: EdgeInsets.only(left: 10, top: 5),
@@ -41,96 +101,56 @@ class _HistoryAdminState extends State<HistoryAdmin> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 10,
-                ),
+                SizedBox(width: 10),
                 Expanded(
-                    child: Padding(
-                  padding: EdgeInsets.only(top: 5, right: 15),
-                  child: HorizontalSlidableButton(
-                    buttonWidth: 150,
-                    color: Color.fromARGB(255, 24, 59, 197),
-                    buttonColor: Color.fromARGB(255, 24, 59, 197),
-                    dismissible: false,
-                    
-                    onChanged: (SlidableButtonPosition value) {
-                      setState(() {
-                        _position = value;
-                      });
-                    },
-                    label: Center(
-                      child: Padding(
-                        padding:
-                            EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Colors.white,
-                          ),
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 5, right: 15, bottom: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _isApproved ? 'อนุมัติแล้ว' : 'ยังไม่อนุมัติ',
+                          style: TextStyle(color: Colors.white),
                         ),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          top: 5, right: 12, left: 12, bottom: 5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'อนุมัติแล้ว',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          Text(
-                            'ยังไม่อนุมัติ',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
+                        Switch(
+                          value: _isApproved,
+                          onChanged: (value) {
+                            setState(() {
+                              _isApproved = value;
+                            });
+                          },
+                          activeColor: Colors.green,
+                          inactiveThumbColor: Colors.red,
+                        ),
+                      ],
                     ),
                   ),
-                ))
+                ),
               ],
             ),
             Expanded(
-                child: Container(
-              padding: const EdgeInsets.all(10.0),
-              width: MediaQuery.of(context).size.width,
-              height: 660,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 233, 102, 102),
-              ),
-              child: Padding(
+              child: Container(
                 padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Expanded(
-                        child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 233, 102, 102),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        reverse: true,
-                        itemCount: 10 + (isAtBottom ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (isAtBottom && index == 0) {
-                            return SizedBox(height: 100);
-                          } else {
-                            int adjustedIndex = isAtBottom ? index - 1 : index;
-                            return isEditing && editingIndex == adjustedIndex
-                                ? _buildEditForm(adjustedIndex)
-                                : _buildHistoryItem(adjustedIndex);
-                          }
-                        },
-                      ),
-                    ))
-                  ],
+                width: MediaQuery.of(context).size.width,
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                ),
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _leaveData! + 1,
+                  itemBuilder: (context, index) {
+                    if (index == _leaveData) {
+                      return const SizedBox(height: 100);
+                    } else {
+                      int adjustedIndex = _leaveData - index - 1;
+                      return isEditing && editingIndex == adjustedIndex
+                          ? _buildEditForm(adjustedIndex)
+                          : _buildHistoryItem(adjustedIndex);
+                    }
+                  },
                 ),
               ),
-            ))
+            ),
           ],
         ),
       ),
@@ -138,39 +158,46 @@ class _HistoryAdminState extends State<HistoryAdmin> {
   }
 
   Widget _buildHistoryItem(int index) {
+    var leaveData = _info![index].data();
+    final colorProvider = Provider.of<ColorProvider>(context);
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
+          border: Border.all(
+            color: colorProvider.color, // Border color
+            width: 2.0, // Border width
+          ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Expanded(
+            Expanded(
               flex: 4,
               child: Padding(
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'ลากิจ',
-                      style: TextStyle(
+                      leaveData['LeaveType'] ?? 'ไม่ระบุประเภทการลา',
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(
-                      'ลาไปพักผ่อนกลับครอบครัว',
-                      style: TextStyle(fontSize: 15),
+                      leaveData['LeavePeriod'] ?? 'ไม่ระบุเหตุผล',
+                      style: const TextStyle(fontSize: 15),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(
-                      'วันที่ 1 มกราคม 2564',
-                      style: TextStyle(fontSize: 15),
+                      leaveData['Date'] ?? 'ไม่ระบุวันที่',
+                      style: const TextStyle(fontSize: 15),
                     ),
                   ],
                 ),
@@ -181,7 +208,7 @@ class _HistoryAdminState extends State<HistoryAdmin> {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: IconButton(
-                  icon: Icon(Icons.edit),
+                  icon: const Icon(Icons.edit),
                   onPressed: () {
                     setState(() {
                       isEditing = true;
@@ -198,7 +225,7 @@ class _HistoryAdminState extends State<HistoryAdmin> {
   }
 
   Widget _buildEditForm(int index) {
-    return ConfrimHistoryAdmin(
+    return EditHistory(
       onFormSubmit: (formData) {
         setState(() {
           isEditing = false;

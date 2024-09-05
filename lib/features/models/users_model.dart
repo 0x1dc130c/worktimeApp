@@ -1,36 +1,35 @@
 
 class UserModel {
-  final String id;
-  final String fistname;
+  final String firstname;
   final String lastname;
   final String email;
   final String username;
   final String password;
   final String phonenumber;
+  final String position;
   final String roles;
 
   const UserModel({
-    required this.id,
-    required this.fistname,
+    required this.firstname,
     required this.lastname,
     required this.email,
     required this.username,
     required this.password,
     required this.phonenumber,
+    required this.position,
     required this.roles,
   });
 
-  toJson(){
+  Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'fistname': fistname,
-      'lastname': lastname,
-      'email': email,
-      'username': username,
-      'password': password,
-      'phonenumber': phonenumber,
-      'roles': roles,
+      'Firstname': firstname,
+      'Lastname': lastname,
+      'Email': email,
+      'Username': username,
+      'Password': password,
+      'Position': position,
+      'Phonenumber': phonenumber,
+      'Roles': 'User',
     };
   }
-
 }

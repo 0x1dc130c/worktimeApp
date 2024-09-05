@@ -25,24 +25,34 @@ class _HomeState extends State<Home> {
     Timer.periodic(Duration(seconds: 1), (timer) {
       if (!mounted) return; // ตรวจสอบว่า State ยังอยู่ใน tree หรือไม่
       DateTime _now = DateTime.now();
-      if (_now.hour == 16 && _now.minute == 25) {
+      if (_now.hour == 16 && _now.minute == 29) {
         _changeColor('red');
       }
     });
   }
 
   void _changeColor(String color) {
-    // เรียก Provider นอก setState
-    final colorProvider = Provider.of<ColorProvider>(context, listen: false);
+  // เรียก Provider นอก setState
+  final colorProvider = Provider.of<ColorProvider>(context, listen: false);
 
-    setState(() {
-      if (color == 'red') {
-        colorProvider.changeColor(const Color.fromARGB(255, 244, 67, 54));
-      } else if (color == 'gray') {
-        colorProvider.changeColor(const Color.fromARGB(255, 42, 42, 42));
-      }
-    });
-  }
+  setState(() {
+    if (color == 'red') {
+      colorProvider.changeColor(
+        const Color.fromARGB(255, 244, 67, 54)
+      );
+      colorProvider.changeTextColor(
+        const Color.fromARGB(255, 255, 255, 255),
+      );
+    } else if (color == 'gray') {
+      colorProvider.changeColor(
+        const Color.fromARGB(255, 42, 42, 42) 
+      );
+      colorProvider.changeTextColor(
+        const Color.fromARGB(255, 255, 255, 255),
+      );
+    }
+  });
+}
 
   void _onButtonPressed() {
     _changeColor('gray');

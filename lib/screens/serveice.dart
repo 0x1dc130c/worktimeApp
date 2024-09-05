@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'color_provider.dart';
 import 'setting.dart';
 import 'login.dart';
 import 'calendar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+
 
 class ServeicePage extends StatefulWidget {
   const ServeicePage({Key? key}) : super(key: key);
@@ -15,54 +19,55 @@ class _ServeicePageState extends State<ServeicePage> {
   Widget? selectedPage;
 
   void _navigateToPage(Widget page) {
-    if (page is! Login) { // Check if the page is not Login page
-      setState(() {
-        nextPage = true;
-        selectedPage = page;
-      });
-    }
+    setState(() {
+      nextPage = true;
+      selectedPage = page;
+    });
+  }
+
+  Future<void> _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Login()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorProvider = Provider.of<ColorProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Serveice Page'),
-      ),
+        centerTitle: true,
+        title: Text('บริการ',
+        style: TextStyle(fontSize: 24, color: colorProvider.textcolor)),
+        backgroundColor: colorProvider.color,
+        ),
       body: nextPage
           ? selectedPage
           : Container(
               width: double.infinity,
-              decoration:
-                  const BoxDecoration(color: Color.fromARGB(255, 188, 55, 240)),
+              decoration: BoxDecoration(color: Color.fromARGB(255, 228, 228, 228)),
               child: Column(
                 children: [
                   const SizedBox(height: 10),
                   ExpandableButton(
                     icon: Icons.settings,
                     text: 'ตั้งค่าบัญชีผู้ใช้งาน',
-                    path: SettingAccount(),
-                    onNavigate: _navigateToPage,
+                    onNavigate: () => _navigateToPage(SettingAccount()),
                   ),
                   const SizedBox(height: 10),
                   ExpandableButton(
-                    icon: Icons.logout,
+                    icon: Icons.calendar_today,
                     text: 'ปฎิทินวันหยุดของบริษัท',
-                    path: CalendarPage(),
-                    onNavigate: _navigateToPage,
+                    onNavigate: () => _navigateToPage(CalendarPage()),
                   ),
                   const SizedBox(height: 10),
                   ExpandableButton(
                     icon: Icons.exit_to_app,
                     text: 'ออกจากระบบ',
-                    path: Login(),
-                    onNavigate: (page) {
-                      // Directly navigate to Login page without updating nextPage
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => page),
-                      );
-                    },
+                    onNavigate: _logout,
                   ),
                 ],
               ),
@@ -74,14 +79,12 @@ class _ServeicePageState extends State<ServeicePage> {
 class ExpandableButton extends StatefulWidget {
   final IconData icon;
   final String text;
-  final Widget? path;
-  final Function(Widget) onNavigate;
+  final VoidCallback onNavigate;
 
   const ExpandableButton({
     Key? key,
     required this.icon,
     required this.text,
-    required this.path,
     required this.onNavigate,
   }) : super(key: key);
 
@@ -107,16 +110,11 @@ class _ExpandableButtonState extends State<ExpandableButton> {
     });
   }
 
-  void _navigateToPage() {
-    if (widget.path != null) {
-      widget.onNavigate(widget.path!);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final colorProvider = Provider.of<ColorProvider>(context); // Add this line to create an instance of ColorProvider
     return GestureDetector(
-      onTap: _navigateToPage,
+      onTap: widget.onNavigate,
       onTapDown: (_) => _increaseSize(),
       onTapUp: (_) => _decreaseSize(),
       onTapCancel: () => _decreaseSize(),
@@ -125,7 +123,7 @@ class _ExpandableButtonState extends State<ExpandableButton> {
         child: Container(
           width: double.maxFinite,
           decoration: BoxDecoration(
-            color: Colors.blue,
+            color: colorProvider.color,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(

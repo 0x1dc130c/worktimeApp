@@ -19,43 +19,51 @@ class _CalendarPageState extends State<CalendarPage> {
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        decoration: const BoxDecoration(color: Color.fromARGB(255, 129, 94, 143)),
-        child: Padding(padding : EdgeInsets.all(20),
-          child: Column(children: [
-             Container(
-            height: 500,
-            color: Colors.white,
-            child: 
-              TableCalendar(
-                firstDay: DateTime.utc(2021, 1, 1),
-                lastDay: DateTime.utc(2030, 12, 31),
-                focusedDay: _focusedDay,
-                calendarFormat: _calendarFormat,
-                selectedDayPredicate: (day) {
-                  return isSameDay(_selectedDay, day);
-                },
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                  });
-                },
-                onFormatChanged: (format) {
-                  if (_calendarFormat != format) {
+        decoration:
+            const BoxDecoration(color: Color.fromARGB(255, 228, 228, 228)),
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Container(
+                height: 500,
+                color: Colors.white,
+                child: TableCalendar(
+                  headerStyle: const HeaderStyle(
+                    titleCentered: true,
+                    formatButtonVisible: false,
+                  ),
+                  firstDay: DateTime.utc(2021, 1, 1),
+                  lastDay: DateTime.utc(2030, 12, 31),
+                  focusedDay: _focusedDay,
+                  calendarFormat: _calendarFormat,
+                  availableCalendarFormats: const {
+                    CalendarFormat.month: 'Month',
+                  },
+                  selectedDayPredicate: (day) {
+                    return isSameDay(_selectedDay, day);
+                  },
+                  onDaySelected: (selectedDay, focusedDay) {
                     setState(() {
-                      _calendarFormat = format;
+                      _selectedDay = selectedDay;
+                      _focusedDay = focusedDay;
                     });
-                  }
-                },
-                onPageChanged: (focusedDay) {
-                  _focusedDay = focusedDay;
-                }, 
+                  },
+                  onFormatChanged: (format) {
+                    if (_calendarFormat != format) {
+                      setState(() {
+                        _calendarFormat = format;
+                      });
+                    }
+                  },
+                  onPageChanged: (focusedDay) {
+                    _focusedDay = focusedDay;
+                  },
+                  weekNumbersVisible: false, // ซ่อนชื่อวัน
+                ),
+              ),
+            ],
           ),
-          ),
-
-          ],)
-          
-         
         ),
       ),
     );

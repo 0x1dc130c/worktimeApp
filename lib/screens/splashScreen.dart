@@ -18,10 +18,10 @@ class _SplashscreenState extends State<Splashscreen> with SingleTickerProviderSt
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     
     // หน่วงเวลา 10 วินาทีแล้วเปลี่ยนไปหน้าล็อกอิน
-    Future.delayed(const Duration(seconds: 10), () {
+    Future.delayed(const Duration(seconds: 5), () {
       Navigator.pushReplacementNamed(context, '/login');
     });
   }
@@ -29,7 +29,7 @@ class _SplashscreenState extends State<Splashscreen> with SingleTickerProviderSt
   @override
   void dispose() {
     // คืนค่า status bar ให้แสดงปกติเมื่อออกจากหน้าจอนี้
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
     super.dispose();
     
   }

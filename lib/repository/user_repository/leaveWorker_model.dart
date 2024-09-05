@@ -1,21 +1,21 @@
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:worktime/features/models/users_model.dart';
+import 'package:worktime/features/models/infoleaveWorker.dart';
 
-class UserRepository extends GetxController {
-  static UserRepository get instance => Get.find();
+class LeaveWorkerRepository extends GetxController {
+  static LeaveWorkerRepository get instance => Get.find();
 
   final _db = FirebaseFirestore.instance;
 
-  createUser(UserModel user) async {
+  createLeaveWorker(Infoleaveworker leaveWorker) async {
+    print('================== Leave Worker: ${leaveWorker.toJson()}');
     try {
-      await _db.collection('Users').add(user.toJson());
+      await _db.collection('infoLeaveWorker').add(leaveWorker.toJson());
       Get.snackbar(
         'Success',
-        'User Added Successfully',
+        'Leave Worker Added Successfully',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green.withOpacity(0.8),
         colorText: Colors.white,
@@ -23,7 +23,7 @@ class UserRepository extends GetxController {
     } catch (error) {
       Get.snackbar(
         'Error',
-        'Failed to Add User',
+        'Failed to Add Leave Worker',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.withOpacity(0.8),
         colorText: Colors.white,

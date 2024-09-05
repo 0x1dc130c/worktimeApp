@@ -51,7 +51,11 @@ android {
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
     }
-
+    // dependencies {
+    // // Firebase dependencies
+    // implementation 'com.google.firebase:firebase-core:33.1.2'
+    // implementation 'com.google.firebase:firebase-storage:33.1.2'
+    // }
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
